@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Login from "./Login";
 import { Context } from "../App";
+import Logout from "./Logout";
 
 const Navbar = () => {
   const [theme, setTheme] = useState(
@@ -20,11 +21,8 @@ const Navbar = () => {
     }
   }, [theme]);
 
-  const {
-    closeLoginModal,
-    isLoginModalOpen,
-    openLoginModal,
-  } = useContext(Context);
+  const { isLoginModalOpen, openLoginModal, authUser, setAuthUser } =
+    useContext(Context);
 
   const navItems = (
     <>
@@ -42,7 +40,6 @@ const Navbar = () => {
       </li>
     </>
   );
-
 
   return (
     <>
@@ -134,13 +131,17 @@ const Navbar = () => {
                 </svg>
               </label>
               <div>
-                <a
-                  className="bg-orange-500 active:bg-orange-900 text-white ml-6 px-6 py-2 hover:scale-105  cursor-pointer rounded-md"
-                  onClick={openLoginModal}
-                >
-                  Login
-                </a>
-                {isLoginModalOpen && <Login/>}
+                {authUser ? (
+                  <Logout />
+                ) : (
+                  <a
+                    className="bg-orange-500 active:bg-orange-900 text-white ml-6 px-6 py-2 hover:scale-105  cursor-pointer rounded-md"
+                    onClick={openLoginModal}
+                  >
+                    Login
+                  </a>
+                )}
+                {isLoginModalOpen && <Login />}
               </div>
             </div>
           </div>

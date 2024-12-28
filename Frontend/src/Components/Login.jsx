@@ -3,6 +3,8 @@ import Button from "./Button";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Context } from "../App";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const {
@@ -10,22 +12,37 @@ const Login = () => {
     handleSubmit,
     formState: { errors },
   } = useForm();
-  
-  const {closeLoginModal} = useContext(Context)
+
+  const { closeLoginModal, setAuthUser } = useContext(Context);
   const navigate = useNavigate();
 
-  const onSubmit = () => {
-    closeLoginModal()
-    navigate("/courses");
+  const onSubmit = async (data) => {
+    const userInfo = {
+      email: data.email,
+      password: data.password
+    };
+
+    await axios
+      .post("http://localhost:4001/user/login", userInfo)
+      .then((res) => {
+        if (res.data) {
+          localStorage.setItem("Users",JSON.stringify(res.data.user))
+          setAuthUser(res.data.user)
+          closeLoginModal();
+          navigate("/courses");
+          toast.success("Login Successfull!");
+        }
+      })
+      .catch((err) =>{
+         console.log("Error", err);
+         toast.error("Error: "+err.response.data.message);
+      });
   };
-
-  
-
 
   return (
     <>
       <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-        <div className="modal-box border" >
+        <div className="modal-box border">
           <form onSubmit={handleSubmit(onSubmit)}>
             <button
               type="button"
@@ -71,7 +88,10 @@ const Login = () => {
               <Button btn={"Login"} />
               <p>
                 Not registered?{" "}
-                <span onClick={closeLoginModal} className="cursor-pointer underline text-blue-600 hover:text-orange-500 active:text-orange-900 duration-500">
+                <span
+                  onClick={closeLoginModal}
+                  className="cursor-pointer underline text-blue-600 hover:text-orange-500 active:text-orange-900 duration-500"
+                >
                   <Link to="/signup">SignUp</Link>
                 </span>
               </p>

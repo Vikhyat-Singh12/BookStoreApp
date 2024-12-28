@@ -4,9 +4,11 @@ import Login from "./Login";
 import { Context } from "../App";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const SignUp = () => {
-  const { isLoginModalOpen, openLoginModal, closeLoginModal } =
+  const { isLoginModalOpen, openLoginModal,setAuthUser} =
     useContext(Context);
 
   const {
@@ -16,9 +18,31 @@ const SignUp = () => {
   } = useForm();
 
   const navigate = useNavigate();
-  const onSubmit = (data) => {
-    navigate('/courses');
+
+  const onSubmit = async (data) => {  
+    const userInfo = {
+      fullname:data.name,
+      email:data.email,
+      password:data.password
+    } 
+    await axios.post("http://localhost:4001/user/signup",userInfo)
+    .then((res) => {
+      if(res.data){
+        toast.success("Login Successfull!");
+        localStorage.setItem("Users",JSON.stringify(res.data.user))
+        setAuthUser(res.data.user)
+        navigate('/courses');
+      }
+    })
+    .catch((err) => {
+      if(err.response){
+        console.log(err);
+        toast.error("Error: " + err.response.data.message);
+      }
+    }) 
+
   };
+
 
   return (
     <div className="flex h-screen items-center justify-center">
